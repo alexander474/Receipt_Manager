@@ -7,9 +7,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import no.ab.application2.IO.ReceiptEntity
-import no.ab.application2.IO.ReceiptRepository
-import no.ab.application2.IO.ReceiptRoomDatabase
+import no.ab.application2.IO.database.ReceiptEntity
+import no.ab.application2.IO.database.ReceiptRepository
+import no.ab.application2.IO.database.ReceiptRoomDatabase
 import kotlin.coroutines.CoroutineContext
 
 class ReceiptViewModel(application: Application) : AndroidViewModel(application) {

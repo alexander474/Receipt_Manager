@@ -1,4 +1,4 @@
-package no.ab.application2.IO
+package no.ab.application2.IO.database
 
 import android.arch.persistence.room.Database
 import android.arch.persistence.room.Room

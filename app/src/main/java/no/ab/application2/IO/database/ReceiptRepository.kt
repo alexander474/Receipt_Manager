@@ -1,4 +1,4 @@
-package no.ab.application2.IO
+package no.ab.application2.IO.database
 
 import android.arch.lifecycle.LiveData
 import android.support.annotation.WorkerThread

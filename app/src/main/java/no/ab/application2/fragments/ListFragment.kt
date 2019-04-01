@@ -8,8 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import no.ab.application2.IO.ReceiptEntity
-import no.ab.application2.MainActivity
+import no.ab.application2.IO.database.ReceiptEntity
 import no.ab.application2.R
 import no.ab.application2.Receipt
 import no.ab.application2.ViewModel.ReceiptViewModel
@@ -43,7 +42,7 @@ class ListFragment : FragmentHandler() {
 
     fun mapToReceipt(data: List<ReceiptEntity>): ArrayList<Receipt>{
         val list = ArrayList<Receipt>()
-        data.forEach { it -> list.add(Receipt(it.name, it.description, it.sum)) }
+        data.forEach { list.add(Receipt(it.id,it.name, it.description, it.sum)) }
         return list
     }
 
