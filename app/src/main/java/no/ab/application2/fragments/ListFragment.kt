@@ -2,6 +2,7 @@ package no.ab.application2.fragments
 
 import android.arch.lifecycle.Observer
 import android.os.Bundle
+import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -25,14 +26,18 @@ class ListFragment : FragmentHandler() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         loadElements(view)
-        recyclerView = view.findViewById(R.id.highscoore_recycler_view)
+        recyclerView = view.findViewById(R.id.receipt_list_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(this.context)
+        /**android.support.v7.widget.
+         * check this
+         */
+        //recyclerView.addItemDecoration(DividerItemDecoration(this.context, R.drawable.abc_list_divider_material))
         val receiptViewModel = ReceiptViewModel(activity!!.application)
 
         // Appends all the users in the UsersAdapter to the recyclerView
         receiptViewModel.allReceiptsLive.observe(this, Observer { liveData ->
             liveData?.let { data ->
-                recyclerView.adapter = ReceiptAdapter(mapToReceipt(data))
+                recyclerView.adapter = ReceiptAdapter(mapToReceipt(data), requireActivity())
             }
         })
 
