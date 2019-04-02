@@ -8,8 +8,11 @@ data class Receipt(
     var name: String,
     var description: String,
     var sum: Double,
+    var currency: String,
+    var imagePath: String,
     var isExpanded: Boolean) : Serializable {
 
     @Ignore
-    constructor(id: Long, name: String, description: String, sum: Double) : this(id,name,description, sum,false)
+    constructor(id: Long, name: String, description: String, sum: Double, currency: String, imagePath: String) :
+            this(id,name,description, sum, currency, imagePath,false)
 }

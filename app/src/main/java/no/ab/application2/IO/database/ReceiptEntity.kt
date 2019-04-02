@@ -15,9 +15,13 @@ data class ReceiptEntity(
     @ColumnInfo(name = "description")
     var description: String,
     @ColumnInfo(name = "sum")
-    var sum: Double){
+    var sum: Double,
+    @ColumnInfo(name = "currency")
+    var currency: String,
+    @ColumnInfo(name = "imagePath")
+    var imagePath: String){
 
     @Ignore
-    constructor(name: String, description: String, sum: Double) :
-            this(0,name,description, sum)
+    constructor(name: String, description: String, sum: Double, currency: String, imagePath: String) :
+            this(0,name,description, sum, currency, imagePath)
 }

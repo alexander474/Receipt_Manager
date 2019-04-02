@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">application2</string>
+    <string name="currency_api_path">https://api.exchangeratesapi.io/latest?</string>
+    <string-array name="currency_list">
+        <item>NOK</item>
+        <item>EUR</item>
+        <item>USD</item>
+    </string-array>
 </resources>

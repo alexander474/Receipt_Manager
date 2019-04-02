@@ -1,8 +1,11 @@
 package no.ab.application2.fragments
 
 import android.Manifest
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -13,12 +16,11 @@ import android.support.v4.content.FileProvider
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
+import android.widget.*
 import kotlinx.android.synthetic.main.fragment_new_receipt.*
 import no.ab.application2.IO.database.ReceiptEntity
 import no.ab.application2.R
+import no.ab.application2.Validation
 import no.ab.application2.ViewModel.ReceiptViewModel
 import java.io.File
 import java.io.IOException
@@ -26,17 +28,24 @@ import java.nio.file.Files.createFile
 import java.text.SimpleDateFormat
 import java.util.*
 
+
+/**
+ * Some of the code regarding taking images is inspired from this page
+ * https://developer.android.com/training/camera/photobasics (02.04.2019)
+ */
 class FragmentNewReceipt : FragmentHandler() {
 
     private lateinit var receiptName: EditText
     private lateinit var receiptDescription: EditText
     private lateinit var receiptSum: EditText
+    private lateinit var receiptSpinnerCurrency: Spinner
     private lateinit var takePicture: Button
     private lateinit var imageReceipt: ImageView
     private lateinit var createReceipt: Button
     private lateinit var receiptViewModel: ReceiptViewModel
+    private var currencySelected = ""
     val REQUEST_TAKE_PHOTO = 1
-    private lateinit var currentPhotoPath: String
+    private var currentPhotoPath: String = ""
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -57,17 +66,45 @@ class FragmentNewReceipt : FragmentHandler() {
 
     private fun handleButtonClick(view: View){
         when(view.id){
-            R.id.btn_takePicture -> if(checkPermissions())takeNewPicture()
+            R.id.btn_takePicture -> checkCameraPermissions()
             R.id.btn_createReciept -> createNewReceipt()
         }
     }
+    fun makeToast(message: String){
+        Toast.makeText(requireActivity(), message, Toast.LENGTH_SHORT).show()
+    }
 
-    fun checkPermissions():Boolean{
+    fun checkCameraPermissions(){
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
-            == PackageManager.PERMISSION_DENIED){
-            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.CAMERA), 1);
-        }else return true
-        return false
+            == PackageManager.PERMISSION_GRANTED) {
+            takeNewPicture()
+        } else requestCameraPermission()
+    }
+
+    private fun requestCameraPermission() {
+        if(ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.CAMERA)){
+            AlertDialog.Builder(requireContext())
+                .setTitle("Permission Needed")
+                .setMessage("This permission is needed to store image of the receipt")
+                .setPositiveButton("OK", DialogInterface.OnClickListener{ dialog, which ->
+                    ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.CAMERA), REQUEST_TAKE_PHOTO)
+                })
+                .setNegativeButton("cancel", DialogInterface.OnClickListener{ dialog, which ->
+                    dialog.dismiss()
+                }).create().show()
+        } else {
+            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.CAMERA), REQUEST_TAKE_PHOTO)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if(requestCode == REQUEST_TAKE_PHOTO){
+            if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                takeNewPicture()
+            }else{
+                makeToast("Cannot take picture without permission to access camera")
+            }
+        }
     }
 
     private fun takeNewPicture() {
@@ -91,13 +128,16 @@ class FragmentNewReceipt : FragmentHandler() {
                     )
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
                     startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO)
+
                 }
             }
         }
+        updateDisplayImage()
     }
 
     @Throws(IOException::class)
     private fun createImageFile(): File {
+        deleteImageOnRetake()
         // Create an image file name
         val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
         val storageDir: File = context!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
@@ -109,28 +149,85 @@ class FragmentNewReceipt : FragmentHandler() {
             // Save a file: path for use with ACTION_VIEW intents
             currentPhotoPath = absolutePath
         }
+
+    }
+
+    private fun deleteImageOnRetake(){
+        if(currentPhotoPath.isNotEmpty()) {
+            val file = File(currentPhotoPath)
+            if(file.delete()) makeToast("Image deleted")
+        }
+    }
+
+    private fun updateDisplayImage(){
+        val bitMap = BitmapFactory.decodeFile(File(currentPhotoPath).absolutePath)
+        imageReceipt.setImageBitmap(bitMap)
+    }
+
+    private fun validateInput(): Boolean{
+        val v = Validation()
+        val values = listOf(
+            receiptName.text.toString(),
+            receiptDescription.text.toString(),
+            receiptSum.text.toString())
+        return v.validate(values)
     }
 
     private fun createNewReceipt() {
-        receiptViewModel.insert(
-            ReceiptEntity(
-                receiptName.text.toString(),
-                receiptDescription.text.toString(),
-                receiptSum.text.toString().toDouble()
+        if(validateInput()) {
+            receiptViewModel.insert(
+                ReceiptEntity(
+                    receiptName.text.toString(),
+                    receiptDescription.text.toString(),
+                    receiptSum.text.toString().toDouble(),
+                    currencySelected,
+                    currentPhotoPath
+                )
             )
-        )
-        popFragment(requireActivity(), 1)
+            popFragment(requireActivity(), 1)
+        }else{
+            AlertDialog.Builder(requireContext())
+                .setTitle("Input is invalid")
+                .setMessage("The input entered is invalid!")
+                .setPositiveButton("I understand", DialogInterface.OnClickListener{ dialog, which ->
+                    dialog.dismiss()
+                }).create().show()
+        }
     }
+
+    private fun handleCurrencySpinner(){
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            resources.getStringArray(R.array.currency_list)
+        )
+        adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line)
+        receiptSpinnerCurrency.adapter = adapter
+
+        receiptSpinnerCurrency.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                //DO NOTHING
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                currencySelected = parent!!.getItemAtPosition(position).toString()
+            }
+        }
+    }
+
 
 
     private fun loadElements(view: View){
         receiptName = view.findViewById(R.id.input_receipt_name)
         receiptDescription = view.findViewById(R.id.input_receipt_decription)
         receiptSum = view.findViewById(R.id.input_receipt_sum)
+        receiptSpinnerCurrency = view.findViewById(R.id.input_receipt_spinner_currency)
         imageReceipt = view.findViewById(R.id.image_reciept)
         takePicture = view.findViewById(R.id.btn_takePicture)
         createReceipt = view.findViewById(R.id.btn_createReciept)
         receiptViewModel = ReceiptViewModel(activity!!.application)
+        handleCurrencySpinner()
     }
+
 
 }

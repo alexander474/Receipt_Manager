@@ -1,5 +1,7 @@
 package no.ab.application2.adapter
 
+import android.content.Context
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
 import android.support.v7.widget.CardView
@@ -8,11 +10,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import no.ab.application2.R
 import no.ab.application2.Receipt
 import no.ab.application2.fragments.FragmentEditReceipt
+import org.json.JSONObject
+
+import java.io.File
 
 
 class ReceiptAdapter(
@@ -28,9 +40,26 @@ class ReceiptAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currentReceipt = receipts[position]
+        val currencyFromPreferences = getSharedPrefCurrency()
         holder.name.text = currentReceipt.name
         holder.description.text = currentReceipt.description
-        holder.sum.text = currentReceipt.sum.toString()
+
+        if(currencyFromPreferences != null && checkInternetPermission()){
+            val newCurrency = calculateCurrency(currentReceipt, currencyFromPreferences)
+            if(newCurrency==-1.0){
+                holder.sum.text = currentReceipt.sum.toString()
+                holder.currency.text = currentReceipt.currency
+            }else {
+                holder.sum.text = newCurrency.toString()
+                holder.currency.text = currencyFromPreferences
+            }
+        }else{
+            holder.sum.text = currentReceipt.sum.toString()
+            holder.currency.text = currentReceipt.currency
+
+        }
+
+        setImage(holder, currentReceipt)
         holder.bind(currentReceipt)
 
         holder.item_row.setOnClickListener{
@@ -50,10 +79,63 @@ class ReceiptAdapter(
                 .addToBackStack(null)
                 .commit()
         }
-
-
     }
 
+    private fun checkInternetPermission(): Boolean{
+        return true
+    }
+
+    private fun calculateCurrency(receipt: Receipt, currency: String): Double{
+        var sum: Double
+        if(currency == receipt.currency){
+            sum = receipt.sum
+        }else{
+            sum = checkCurrentExchangeRates(receipt, currency)
+            if(sum == -1.0) return -1.0
+        }
+        return sum
+    }
+
+    private fun checkCurrentExchangeRates(receipt: Receipt, currency: String): Double {
+        val queue = Volley.newRequestQueue(activity)
+        var result = -1.0
+        val JASON_OBJECT_REQUEST = JsonObjectRequest(
+            Request.Method.GET,
+            currencyQueryQreation(receipt.currency, currency),
+            null,
+            Response.Listener{ response ->
+                result = parseRequest(receipt, currency, response)
+            },
+            Response.ErrorListener {
+                //ERROR
+            }
+        )
+        queue.add(JASON_OBJECT_REQUEST)
+        queue.start()
+        return result
+    }
+
+    private fun parseRequest(receipt: Receipt, currency: String, result: JSONObject): Double {
+        val rates = result.getJSONObject("rates")
+        val newCurrency:Double = rates.getDouble(currency)
+        return  receipt.sum * newCurrency
+    }
+
+    private fun currencyQueryQreation(from: String, to: String):String{
+        return activity.getString(R.string.currency_api_path)+"base=${from}&symbols=${to}"
+    }
+
+    private fun getSharedPrefCurrency(): String?{
+        val pref = activity.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        return pref.getString("currency", "none")
+    }
+
+    private fun setImage(holder: ViewHolder, receipt: Receipt){
+        if(receipt.imagePath.isNotEmpty()) {
+            val bitMap = BitmapFactory.decodeFile(File(receipt.imagePath).absolutePath)
+            holder.image.setImageBitmap(bitMap)
+        }
+    }
 
     override fun getItemCount() = receipts.size
 
@@ -62,6 +144,8 @@ class ReceiptAdapter(
         val name: TextView = itemView.findViewById(R.id.list_row_name)
         val description: TextView = itemView.findViewById(R.id.list_row_description)
         val sum: TextView = itemView.findViewById(R.id.list_row_sum)
+        val currency: TextView = itemView.findViewById(R.id.list_row_currency)
+        val image: ImageView = itemView.findViewById(R.id.list_row_image)
         val btn_edit: Button = itemView.findViewById(R.id.list_row_btn_update)
         val item_row: CardView = itemView.findViewById(R.id.list_row_card_item)
         val item_row_subItem: LinearLayout = itemView.findViewById(R.id.list_row_item_sub)

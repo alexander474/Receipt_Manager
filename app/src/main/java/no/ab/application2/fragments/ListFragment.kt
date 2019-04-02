@@ -28,10 +28,7 @@ class ListFragment : FragmentHandler() {
         loadElements(view)
         recyclerView = view.findViewById(R.id.receipt_list_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(this.context)
-        /**android.support.v7.widget.
-         * check this
-         */
-        //recyclerView.addItemDecoration(DividerItemDecoration(this.context, R.drawable.abc_list_divider_material))
+
         val receiptViewModel = ReceiptViewModel(activity!!.application)
 
         // Appends all the users in the UsersAdapter to the recyclerView
@@ -47,7 +44,7 @@ class ListFragment : FragmentHandler() {
 
     fun mapToReceipt(data: List<ReceiptEntity>): ArrayList<Receipt>{
         val list = ArrayList<Receipt>()
-        data.forEach { list.add(Receipt(it.id,it.name, it.description, it.sum)) }
+        data.forEach { list.add(Receipt(it.id,it.name, it.description, it.sum, it.currency, it.imagePath)) }
         return list
     }
 
