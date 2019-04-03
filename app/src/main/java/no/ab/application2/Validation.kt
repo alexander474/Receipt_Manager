@@ -24,4 +24,5 @@ class Validation{
         input.forEach { if(it.isNotEmpty()) passed = true else passed = false }
         return passed
     }
+
 }

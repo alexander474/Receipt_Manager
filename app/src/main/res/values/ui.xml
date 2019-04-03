@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="save_btn">Save</string>
+    <string name="create_receipt_btn">Create Receipt</string>
+    <string name="take_picture_btn">Take Picture</string>
+    <string name="sum_hint">Sum</string>
+    <string name="description_hint">Description</string>
+    <string name="name_hint">Name</string>
+    <string name="add_new_btn"><![CDATA[ADD NEW =>]]></string>
+</resources>

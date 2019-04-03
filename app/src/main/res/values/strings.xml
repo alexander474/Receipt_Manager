@@ -1,9 +1,11 @@
 <resources>
     <string name="app_name">application2</string>
     <string name="currency_api_path">https://api.exchangeratesapi.io/latest?</string>
-    <string-array name="currency_list">
-        <item>NOK</item>
-        <item>EUR</item>
-        <item>USD</item>
-    </string-array>
+    <string name="setting_preference">settings</string>
+    <string name="settings_firstTime_id">firstTime</string>
+    <string name="settings_currency_id">currency</string>
+    <string name="settings_currency_defaultvalue">none</string>
+    <string name="receipt_bundle_id">receipt</string>
+    <string name="CREATED_STRING_UI">Created:</string>
+    <string name="MODIFIED_STRING_UI">Modified:</string>
 </resources>

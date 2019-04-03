@@ -20,14 +20,14 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun setFirstTimeAppisLaunched(){
-        val pref = getSharedPreferences("settings", Context.MODE_PRIVATE)
-        val firstTime = pref.getBoolean("firstTime", true)
+        val pref = getSharedPreferences(getString(R.string.setting_preference), Context.MODE_PRIVATE)
+        val firstTime = pref.getBoolean(getString(R.string.settings_firstTime_id), true)
         if(firstTime){
-            pref.edit().putBoolean("firstTime", false).apply()
+            pref.edit().putBoolean(getString(R.string.settings_firstTime_id), false).apply()
             chooseCurrencyDialog()
         }
-        val currencyIsChoosen = pref.getString("currency", "none")
-        if(currencyIsChoosen == "none"){
+        val currencyIsChoosen = pref.getString(getString(R.string.settings_currency_id), getString(R.string.settings_currency_defaultvalue))
+        if(currencyIsChoosen == getString(R.string.settings_currency_defaultvalue)){
             chooseCurrencyDialog()
         }
     }
@@ -37,8 +37,8 @@ class MainActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle("Please Choose Currency")
             .setItems(list, DialogInterface.OnClickListener { dialog, which ->
-                val pref = getSharedPreferences("settings", Context.MODE_PRIVATE)
-                pref.edit().putString("currency", list[which]).apply()
+                val pref = getSharedPreferences(getString(R.string.setting_preference), Context.MODE_PRIVATE)
+                pref.edit().putString(getString(R.string.settings_currency_id), list[which]).apply()
             }).create().show()
     }
 

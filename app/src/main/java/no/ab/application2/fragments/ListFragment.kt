@@ -44,7 +44,7 @@ class ListFragment : FragmentHandler() {
 
     fun mapToReceipt(data: List<ReceiptEntity>): ArrayList<Receipt>{
         val list = ArrayList<Receipt>()
-        data.forEach { list.add(Receipt(it.id,it.name, it.description, it.sum, it.currency, it.imagePath)) }
+        data.forEach { list.add(Receipt(it.id,it.name, it.description, it.sum, it.currency, it.imagePath, it.dateCreated, it.dateLastModified)) }
         return list
     }
 

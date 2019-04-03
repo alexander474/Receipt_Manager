@@ -23,7 +23,7 @@
                 android:layout_height="wrap_content">
             <TextView
                     android:id="@+id/list_row_name"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
                     android:layout_marginStart="16dp"
@@ -69,7 +69,7 @@
                     android:layout_marginBottom="8dp">
             <TextView
                     android:id="@+id/list_row_description"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:textAlignment="center"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -89,18 +89,28 @@
             </LinearLayout>
 
             <LinearLayout
-                    android:orientation="horizontal"
+                    android:orientation="vertical"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-            <android.support.v7.widget.AppCompatButton
-                    android:id="@+id/list_row_btn_update"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="12dp"
-                    android:layout_gravity="end"
-                    android:gravity="center"
-                    android:text="Edit"/>
+
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/list_row_created"/>
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/list_row_edited"/>
             </LinearLayout>
+
+                <android.support.v7.widget.AppCompatButton
+                        android:id="@+id/list_row_btn_update"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="12dp"
+                        android:layout_gravity="end"
+                        android:gravity="center"
+                        android:text="Edit"/>
 
         </LinearLayout>
     </LinearLayout>

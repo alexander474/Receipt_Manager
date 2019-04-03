@@ -12,7 +12,7 @@
             android:paddingBottom="15dp">
 
         <Button
-                android:text="ADD NEW =>"
+                android:text="@string/add_new_btn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/btn_newReceipt"

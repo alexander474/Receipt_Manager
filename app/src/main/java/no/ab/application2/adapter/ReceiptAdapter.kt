@@ -17,8 +17,6 @@ import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import no.ab.application2.R
 import no.ab.application2.Receipt
 import no.ab.application2.fragments.FragmentEditReceipt
@@ -40,24 +38,11 @@ class ReceiptAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currentReceipt = receipts[position]
-        val currencyFromPreferences = getSharedPrefCurrency()
         holder.name.text = currentReceipt.name
         holder.description.text = currentReceipt.description
-
-        if(currencyFromPreferences != null && checkInternetPermission()){
-            val newCurrency = calculateCurrency(currentReceipt, currencyFromPreferences)
-            if(newCurrency==-1.0){
-                holder.sum.text = currentReceipt.sum.toString()
-                holder.currency.text = currentReceipt.currency
-            }else {
-                holder.sum.text = newCurrency.toString()
-                holder.currency.text = currencyFromPreferences
-            }
-        }else{
-            holder.sum.text = currentReceipt.sum.toString()
-            holder.currency.text = currentReceipt.currency
-
-        }
+        holder.created.text = activity.getString(R.string.CREATED_STRING_UI)+currentReceipt.dateCreated
+        holder.edited.text = activity.getString(R.string.MODIFIED_STRING_UI)+currentReceipt.dateLastModified
+        handleCurrencyFields(holder, currentReceipt)
 
         setImage(holder, currentReceipt)
         holder.bind(currentReceipt)
@@ -71,13 +56,31 @@ class ReceiptAdapter(
         holder.btn_edit.setOnClickListener{
             val fragment = FragmentEditReceipt()
             val bundle = Bundle()
-            bundle.putSerializable("receipt", currentReceipt)
+            bundle.putSerializable(activity.getString(R.string.receipt_bundle_id), currentReceipt)
             fragment.arguments = bundle
             activity.supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.fragment_container, fragment, null)
                 .addToBackStack(null)
                 .commit()
+        }
+    }
+
+    private fun handleCurrencyFields(holder: ViewHolder, currentReceipt: Receipt){
+        val currencyFromPreferences = getSharedPrefCurrency()
+        if(currencyFromPreferences != null && checkInternetPermission()){
+            val newCurrency = calculateCurrency(currentReceipt, currencyFromPreferences)
+            if(newCurrency==-1.0){
+                holder.sum.text = currentReceipt.sum.toString()
+                holder.currency.text = currentReceipt.currency
+            }else {
+                holder.sum.text = newCurrency.toString()
+                holder.currency.text = currencyFromPreferences
+            }
+        }else{
+            holder.sum.text = currentReceipt.sum.toString()
+            holder.currency.text = currentReceipt.currency
+
         }
     }
 
@@ -126,8 +129,8 @@ class ReceiptAdapter(
     }
 
     private fun getSharedPrefCurrency(): String?{
-        val pref = activity.getSharedPreferences("settings", Context.MODE_PRIVATE)
-        return pref.getString("currency", "none")
+        val pref = activity.getSharedPreferences(activity.getString(R.string.setting_preference), Context.MODE_PRIVATE)
+        return pref.getString(activity.getString(R.string.settings_currency_id), activity.getString(R.string.settings_currency_defaultvalue))
     }
 
     private fun setImage(holder: ViewHolder, receipt: Receipt){
@@ -146,6 +149,8 @@ class ReceiptAdapter(
         val sum: TextView = itemView.findViewById(R.id.list_row_sum)
         val currency: TextView = itemView.findViewById(R.id.list_row_currency)
         val image: ImageView = itemView.findViewById(R.id.list_row_image)
+        val created: TextView = itemView.findViewById(R.id.list_row_created)
+        val edited: TextView = itemView.findViewById(R.id.list_row_edited)
         val btn_edit: Button = itemView.findViewById(R.id.list_row_btn_update)
         val item_row: CardView = itemView.findViewById(R.id.list_row_card_item)
         val item_row_subItem: LinearLayout = itemView.findViewById(R.id.list_row_item_sub)

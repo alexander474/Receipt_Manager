@@ -4,6 +4,7 @@ import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.PrimaryKey
+import java.util.*
 
 @Entity(tableName = "receipt_table")
 data class ReceiptEntity(
@@ -19,9 +20,13 @@ data class ReceiptEntity(
     @ColumnInfo(name = "currency")
     var currency: String,
     @ColumnInfo(name = "imagePath")
-    var imagePath: String){
+    var imagePath: String,
+    @ColumnInfo(name = "dateCreated")
+    var dateCreated: Date,
+    @ColumnInfo(name = "dateLastModified")
+    var dateLastModified: Date){
 
     @Ignore
-    constructor(name: String, description: String, sum: Double, currency: String, imagePath: String) :
-            this(0,name,description, sum, currency, imagePath)
+    constructor(name: String, description: String, sum: Double, currency: String, imagePath: String, dateCreated: Date, dateLastModified: Date) :
+            this(0,name,description, sum, currency, imagePath, dateCreated, dateLastModified)
 }

@@ -1,11 +1,10 @@
 package no.ab.application2.IO.database
 
-import android.arch.persistence.room.Database
-import android.arch.persistence.room.Room
-import android.arch.persistence.room.RoomDatabase
+import android.arch.persistence.room.*
 import android.content.Context
 
-@Database(entities = [ReceiptEntity::class],version = 2, exportSchema = false)
+@Database(entities = [ReceiptEntity::class],version = 1, exportSchema = false)
+@TypeConverters(Converters::class)
 public abstract class ReceiptRoomDatabase : RoomDatabase() {
     abstract fun userDao() : ReceiptDAO
 
