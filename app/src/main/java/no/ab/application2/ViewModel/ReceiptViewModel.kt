@@ -16,6 +16,7 @@ class ReceiptViewModel(application: Application) : AndroidViewModel(application)
     private val repository: ReceiptRepository
     val allReceiptsLive: LiveData<List<ReceiptEntity>>
 
+
     private var parentJob = Job()
     private val coroutineContext: CoroutineContext get() = parentJob + Dispatchers.Main
     private val scope = CoroutineScope(coroutineContext)
@@ -25,6 +26,8 @@ class ReceiptViewModel(application: Application) : AndroidViewModel(application)
         repository = ReceiptRepository(userDAO)
         allReceiptsLive = repository.allReceiptsLive
     }
+
+
 
     fun insert(receiptEntity: ReceiptEntity) = scope.launch(Dispatchers.IO) {
         repository.insert(receiptEntity)

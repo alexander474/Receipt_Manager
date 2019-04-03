@@ -19,5 +19,6 @@ interface ReceiptDAO{
     fun deleteAll()
 
     @Query("SELECT * FROM receipt_table ORDER BY dateLastModified DESC, dateCreated DESC")
-    fun getAllUsersLive() : LiveData<List<ReceiptEntity>>
+    fun getAllReceiptsLive() : LiveData<List<ReceiptEntity>>
+
 }

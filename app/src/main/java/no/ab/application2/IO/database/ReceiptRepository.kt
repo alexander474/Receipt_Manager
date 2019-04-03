@@ -4,8 +4,7 @@ import android.arch.lifecycle.LiveData
 import android.support.annotation.WorkerThread
 
 class ReceiptRepository(private val receiptDAO: ReceiptDAO){
-    val allReceiptsLive: LiveData<List<ReceiptEntity>> = receiptDAO.getAllUsersLive()
-
+    val allReceiptsLive: LiveData<List<ReceiptEntity>> = receiptDAO.getAllReceiptsLive()
 
     @WorkerThread
     suspend fun insert(receiptEntity: ReceiptEntity){
