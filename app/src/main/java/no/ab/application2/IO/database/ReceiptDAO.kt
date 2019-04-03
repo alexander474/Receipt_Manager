@@ -18,6 +18,6 @@ interface ReceiptDAO{
     @Query("DELETE FROM receipt_table")
     fun deleteAll()
 
-    @Query("SELECT * FROM receipt_table")
+    @Query("SELECT * FROM receipt_table ORDER BY dateLastModified DESC, dateCreated DESC")
     fun getAllUsersLive() : LiveData<List<ReceiptEntity>>
 }

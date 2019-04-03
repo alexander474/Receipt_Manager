@@ -41,7 +41,9 @@ class ReceiptAdapter(
         val currentReceipt = receipts[position]
         holder.name.text = currentReceipt.name
         holder.description.text = currentReceipt.description
-        handleCurrencyFields(holder, currentReceipt)
+        //handleCurrencyFields(holder, currentReceipt)
+        setCurrencyData(holder, currentReceipt.sum, currentReceipt.currency)
+        askForData(holder,currentReceipt)
 
         holder.bind(currentReceipt)
 
@@ -76,48 +78,32 @@ class ReceiptAdapter(
 
     }
 
-    private fun handleCurrencyFields(holder: ViewHolder, currentReceipt: Receipt){
+    private fun askForData(holder: ViewHolder, currentReceipt: Receipt){
         val currencyFromPreferences = getSharedPrefCurrency()
         if(currencyFromPreferences != null && checkInternetPermission()){
-            val newCurrency = calculateCurrency(currentReceipt, currencyFromPreferences)
-            if(newCurrency==-1.0){
-                holder.sum.text = currentReceipt.sum.toString()
-                holder.currency.text = currentReceipt.currency
-            }else {
-                holder.sum.text = newCurrency.toString()
-                holder.currency.text = currencyFromPreferences
-            }
-        }else{
-            holder.sum.text = currentReceipt.sum.toString()
-            holder.currency.text = currentReceipt.currency
-
+            checkCurrentExchangeRates(holder, currentReceipt, currencyFromPreferences)
         }
     }
+
+    private fun setCurrencyData(holder: ViewHolder, sum: Double, currency: String){
+        holder.sum.text = sum.toString()
+        holder.currency.text = currency
+    }
+
 
     private fun checkInternetPermission(): Boolean{
         return true
     }
 
-    private fun calculateCurrency(receipt: Receipt, currency: String): Double{
-        var sum: Double
-        if(currency == receipt.currency){
-            sum = receipt.sum
-        }else{
-            sum = checkCurrentExchangeRates(receipt, currency)
-            if(sum == -1.0) return -1.0
-        }
-        return sum
-    }
 
-    private fun checkCurrentExchangeRates(receipt: Receipt, currency: String): Double {
+    private fun checkCurrentExchangeRates(holder: ViewHolder, receipt: Receipt, currency: String){
         val queue = Volley.newRequestQueue(activity)
-        var result = -1.0
         val JASON_OBJECT_REQUEST = JsonObjectRequest(
             Request.Method.GET,
             currencyQueryQreation(receipt.currency, currency),
             null,
             Response.Listener{ response ->
-                result = parseRequest(receipt, currency, response)
+                setCurrencyData(holder,parseRequest(receipt, currency, response), currency)
             },
             Response.ErrorListener {
                 //ERROR
@@ -125,7 +111,6 @@ class ReceiptAdapter(
         )
         queue.add(JASON_OBJECT_REQUEST)
         queue.start()
-        return result
     }
 
     private fun parseRequest(receipt: Receipt, currency: String, result: JSONObject): Double {
