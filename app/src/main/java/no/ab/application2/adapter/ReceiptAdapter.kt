@@ -19,6 +19,7 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import no.ab.application2.R
 import no.ab.application2.Receipt
+import no.ab.application2.fragments.FragmentDisplayReceipt
 import no.ab.application2.fragments.FragmentEditReceipt
 import org.json.JSONObject
 
@@ -40,11 +41,8 @@ class ReceiptAdapter(
         val currentReceipt = receipts[position]
         holder.name.text = currentReceipt.name
         holder.description.text = currentReceipt.description
-        holder.created.text = activity.getString(R.string.CREATED_STRING_UI)+currentReceipt.dateCreated
-        holder.edited.text = activity.getString(R.string.MODIFIED_STRING_UI)+currentReceipt.dateLastModified
         handleCurrencyFields(holder, currentReceipt)
 
-        setImage(holder, currentReceipt)
         holder.bind(currentReceipt)
 
         holder.item_row.setOnClickListener{
@@ -64,6 +62,18 @@ class ReceiptAdapter(
                 .addToBackStack(null)
                 .commit()
         }
+        holder.btn_open.setOnClickListener{
+            val fragment = FragmentDisplayReceipt()
+            val bundle = Bundle()
+            bundle.putSerializable(activity.getString(R.string.receipt_bundle_id), currentReceipt)
+            fragment.arguments = bundle
+            activity.supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragment, null)
+                .addToBackStack(null)
+                .commit()
+        }
+
     }
 
     private fun handleCurrencyFields(holder: ViewHolder, currentReceipt: Receipt){
@@ -133,12 +143,6 @@ class ReceiptAdapter(
         return pref.getString(activity.getString(R.string.settings_currency_id), activity.getString(R.string.settings_currency_defaultvalue))
     }
 
-    private fun setImage(holder: ViewHolder, receipt: Receipt){
-        if(receipt.imagePath.isNotEmpty()) {
-            val bitMap = BitmapFactory.decodeFile(File(receipt.imagePath).absolutePath)
-            holder.image.setImageBitmap(bitMap)
-        }
-    }
 
     override fun getItemCount() = receipts.size
 
@@ -148,10 +152,8 @@ class ReceiptAdapter(
         val description: TextView = itemView.findViewById(R.id.list_row_description)
         val sum: TextView = itemView.findViewById(R.id.list_row_sum)
         val currency: TextView = itemView.findViewById(R.id.list_row_currency)
-        val image: ImageView = itemView.findViewById(R.id.list_row_image)
-        val created: TextView = itemView.findViewById(R.id.list_row_created)
-        val edited: TextView = itemView.findViewById(R.id.list_row_edited)
         val btn_edit: Button = itemView.findViewById(R.id.list_row_btn_update)
+        val btn_open: Button = itemView.findViewById(R.id.list_row_btn_open)
         val item_row: CardView = itemView.findViewById(R.id.list_row_card_item)
         val item_row_subItem: LinearLayout = itemView.findViewById(R.id.list_row_item_sub)
 
