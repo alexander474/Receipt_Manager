@@ -1,7 +1,7 @@
 package no.ab.application2.adapter
 
 import android.content.Context
-import android.graphics.BitmapFactory
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
 import android.support.v7.widget.CardView
@@ -10,7 +10,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.android.volley.Request
@@ -23,9 +22,10 @@ import no.ab.application2.fragments.FragmentDisplayReceipt
 import no.ab.application2.fragments.FragmentEditReceipt
 import org.json.JSONObject
 
-import java.io.File
 
-
+/**
+ * https://www.youtube.com/watch?v=y2xtLqP8dSQ (28.03.2019)
+ */
 class ReceiptAdapter(
     private val receipts: ArrayList<Receipt>,
     private val activity: FragmentActivity
@@ -41,7 +41,6 @@ class ReceiptAdapter(
         val currentReceipt = receipts[position]
         holder.name.text = currentReceipt.name
         holder.description.text = currentReceipt.description
-        //handleCurrencyFields(holder, currentReceipt)
         setCurrencyData(holder, currentReceipt.sum, currentReceipt.currency)
         askForData(holder,currentReceipt)
 
@@ -92,7 +91,9 @@ class ReceiptAdapter(
 
 
     private fun checkInternetPermission(): Boolean{
-        return true
+        val cm = activity.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork = cm.activeNetworkInfo
+        return activeNetwork.isConnected
     }
 
 
@@ -113,12 +114,18 @@ class ReceiptAdapter(
         queue.start()
     }
 
+    /**
+     * @return calculated exchange rates between currency that user wants and the currency the receipt is stored with
+     */
     private fun parseRequest(receipt: Receipt, currency: String, result: JSONObject): Double {
         val rates = result.getJSONObject("rates")
         val newCurrency:Double = rates.getDouble(currency)
         return  receipt.sum * newCurrency
     }
 
+    /**
+     * @return the full uri for the api request
+     */
     private fun currencyQueryQreation(from: String, to: String):String{
         return activity.getString(R.string.currency_api_path)+"base=${from}&symbols=${to}"
     }

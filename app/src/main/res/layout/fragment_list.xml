@@ -10,13 +10,19 @@
             android:layout_height="wrap_content"
             android:paddingTop="15dp"
             android:paddingBottom="15dp">
+        <Button
+                android:text="@string/map_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/btn_map"
+                android:layout_weight="1"/>
 
         <Button
                 android:text="@string/add_new_btn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/btn_newReceipt"
-                android:layout_weight="1"/>
+                android:layout_weight="4"/>
     </LinearLayout>
     <android.support.v7.widget.RecyclerView
             android:id="@+id/receipt_list_recycler_view"

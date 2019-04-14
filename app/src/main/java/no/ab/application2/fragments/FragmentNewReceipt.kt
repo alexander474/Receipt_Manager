@@ -15,6 +15,7 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.FileProvider
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -63,9 +64,9 @@ class FragmentNewReceipt : FragmentHandler() {
         takePicture.setOnClickListener(btnListner)
         createReceipt.setOnClickListener(btnListner)
 
-
-
     }
+
+
 
     private fun handleButtonClick(view: View){
         when(view.id){

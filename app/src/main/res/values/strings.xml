@@ -8,4 +8,6 @@
     <string name="receipt_bundle_id">receipt</string>
     <string name="CREATED_STRING_UI">Created:</string>
     <string name="MODIFIED_STRING_UI">Modified:</string>
+    <string name="delete_btn">Delete</string>
+    <string name="map_btn">Map</string>
 </resources>

@@ -37,10 +37,11 @@ class FragmentEditReceipt : FragmentHandler() {
     private lateinit var receiptSpinnerCurrency: Spinner
     private lateinit var takePicture: Button
     private lateinit var imageReceipt: ImageView
+    private lateinit var deleteReceipt: Button
     private lateinit var saveReceipt: Button
     private lateinit var receiptViewModel: ReceiptViewModel
     private lateinit var receipt: Receipt
-    private var currencySelected = ""
+    private var currencySelected = "USD"
     private lateinit var cameraHandler: CameraHandler
 
 
@@ -54,6 +55,7 @@ class FragmentEditReceipt : FragmentHandler() {
         val btnListner = View.OnClickListener { handleButtonClick(it) }
 
         takePicture.setOnClickListener(btnListner)
+        deleteReceipt.setOnClickListener(btnListner)
         saveReceipt.setOnClickListener(btnListner)
 
 
@@ -63,8 +65,38 @@ class FragmentEditReceipt : FragmentHandler() {
     private fun handleButtonClick(view: View){
         when(view.id){
             R.id.btn_edit_takePicture -> cameraHandler.takePicture().updateDisplayImage(imageReceipt)
+            R.id.btn_edit_deleteReciept -> deleteReceipt()
             R.id.btn_edit_saveReciept -> updateReceipt()
         }
+    }
+
+    /**
+     * Deletes a receipt and deletes the image file if the user presses yes on dialog
+     */
+    private fun deleteReceipt(){
+        AlertDialog.Builder(requireContext())
+            .setTitle("Warning")
+            .setMessage("Are you sure you want to delete the receipt? this action cannot be undone")
+            .setPositiveButton("Yes", DialogInterface.OnClickListener{ dialog, which ->
+                cameraHandler.deleteImage()
+                receiptViewModel.delete(
+                    ReceiptEntity(
+                        receipt.id,
+                        receiptName.text.toString(),
+                        receiptDescription.text.toString(),
+                        receiptSum.text.toString().toDouble(),
+                        currencySelected,
+                        cameraHandler.currentPhotoPath,
+                        receipt.dateCreated,
+                        Date()
+                    )
+                )
+                dialog.dismiss()
+                popFragment(requireActivity(), 1)
+            })
+            .setNegativeButton("No", DialogInterface.OnClickListener{ dialog, which ->
+                dialog.dismiss()
+            }).create().show()
     }
 
 
@@ -77,6 +109,10 @@ class FragmentEditReceipt : FragmentHandler() {
             receiptSum.text.toString())
         return v.validate(values)
     }
+
+    /**
+     * Updates the receipt with the new inputed values
+     */
     private fun updateReceipt() {
         if(validateInput()) {
             receiptViewModel.update(
@@ -134,6 +170,7 @@ class FragmentEditReceipt : FragmentHandler() {
         receiptSpinnerCurrency = view.findViewById(R.id.input_edit_receipt_spinner_currency)
         imageReceipt = view.findViewById(R.id.image_edit_reciept)
         takePicture = view.findViewById(R.id.btn_edit_takePicture)
+        deleteReceipt = view.findViewById(R.id.btn_edit_deleteReciept)
         saveReceipt = view.findViewById(R.id.btn_edit_saveReciept)
         receiptViewModel = ReceiptViewModel(activity!!.application)
         receipt = arguments!!.getSerializable(getString(R.string.receipt_bundle_id)) as Receipt

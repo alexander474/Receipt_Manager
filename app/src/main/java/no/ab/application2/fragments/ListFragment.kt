@@ -19,6 +19,7 @@ class ListFragment : FragmentHandler() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var btn_newReceipt: Button
+    private lateinit var btn_map: Button
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_list, container, false)
@@ -39,6 +40,7 @@ class ListFragment : FragmentHandler() {
         })
 
         btn_newReceipt.setOnClickListener{pushFragmentWithStack(requireActivity(), R.id.fragment_container, FragmentNewReceipt())}
+        btn_map.setOnClickListener{pushFragmentWithStack(requireActivity(), R.id.fragment_container, FragmentMap())}
 
     }
 
@@ -49,6 +51,7 @@ class ListFragment : FragmentHandler() {
     }
 
     fun loadElements(view: View){
+        btn_map = view.findViewById(R.id.btn_map)
         btn_newReceipt = view.findViewById(R.id.btn_newReceipt)
     }
 

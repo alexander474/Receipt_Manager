@@ -20,6 +20,11 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
+
+/**
+ * Inspirations from https://developer.android.com/training/camera/photobasics (02.04.2019) capture and storage of image
+ * https://www.youtube.com/watch?v=SMrB97JuIoM (02.04.2019) - camera permissions
+ */
 class CameraHandler(val activity: Activity) : ActivityCompat.OnRequestPermissionsResultCallback{
 
     private val REQUEST_TAKE_PHOTO = 9999
@@ -100,7 +105,7 @@ class CameraHandler(val activity: Activity) : ActivityCompat.OnRequestPermission
 
     @Throws(IOException::class)
     private fun createImageFile(): File {
-        deleteImageOnRetake()
+        deleteImage()
         // Create an image file name
         val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
         val storageDir: File = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
@@ -115,12 +120,13 @@ class CameraHandler(val activity: Activity) : ActivityCompat.OnRequestPermission
 
     }
 
-    private fun deleteImageOnRetake(){
+    public fun deleteImage(){
         if(currentPhotoPath.isNotEmpty()) {
             val file = File(currentPhotoPath)
             if(file.delete()) makeToast("Image deleted")
         }
     }
+
 
 
     fun makeToast(message: String){
